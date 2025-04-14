@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String         @id                 // Object ID da Entra ID
+  email       String
+  name        String
+  consuntivi  Consuntivo[]
+  ferie       Ferie[]
+  permessi    Permesso[]
+}
+
+model Consuntivo {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  mese        Int
+  anno        Int
+  stato       String       // BOZZA, INVIATO, APPROVATO
+  eventi      Evento[]
+}
+
+model Evento {
+  id            String       @id @default(cuid())
+  consuntivoId  String
+  data          DateTime
+  ore           Int
+  descrizione   String?
+  tipoEventoId  String
+  tipoEvento    TipoEvento   @relation(fields: [tipoEventoId], references: [id])
+  consuntivo    Consuntivo   @relation(fields: [consuntivoId], references: [id])
+}
+
+model TipoEvento {
+  id           String           @id @default(cuid())
+  nome         String           @unique
+  categoriaId  String
+  categoria    CategoriaEvento  @relation(fields: [categoriaId], references: [id])
+  eventi       Evento[]
+}
+
+model CategoriaEvento {
+  id           String         @id @default(cuid())
+  nome         String         @unique
+  tipiEvento   TipoEvento[]
+}
+
+model Ferie {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  inizio     DateTime
+  fine       DateTime
+  approvato  Boolean  @default(false)
+}
+
+model Permesso {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  data       DateTime
+  ore        Int
+  motivo     String
+  approvato  Boolean  @default(false)
+}
