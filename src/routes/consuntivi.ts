@@ -10,13 +10,32 @@ const ConsuntivoBody = Type.Object({
 });
 
 export default async function (app: FastifyInstance) {
-  app.get('/', async (request) => {
+  app.get('/', async (request, reply) => {
     const { mese, anno, userId } = request.query as {
       mese?: string;
       anno?: string;
       userId?: string;
     };
 
+    // Se mese, anno e userId sono tutti presenti → restituisce solo il consuntivo specifico
+    if (mese && anno && userId) {
+      const consuntivo = await prisma.consuntivo.findFirst({
+        where: {
+          mese: Number(mese),
+          anno: Number(anno),
+          userId,
+        },
+        include: { eventi: true, user: true },
+      });
+
+      if (!consuntivo) {
+        return reply.code(404).send({ message: 'Consuntivo non trovato' });
+      }
+
+      return consuntivo;
+    }
+
+    // Altrimenti, restituisce la lista filtrabile
     const consuntivi = await prisma.consuntivo.findMany({
       where: {
         mese: mese ? Number(mese) : undefined,
