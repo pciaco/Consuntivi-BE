@@ -6,7 +6,8 @@ const FerieBody = Type.Object({
   userId: Type.String(),
   inizio: Type.String({ format: 'date-time' }),
   fine: Type.String({ format: 'date-time' }),
-  approvato: Type.Optional(Type.Boolean())
+  approvato: Type.Optional(Type.Boolean()),
+  consuntivoId: Type.Optional(Type.String())
 });
 
 export default async function (app: FastifyInstance) {
@@ -26,7 +27,7 @@ export default async function (app: FastifyInstance) {
             }
           : undefined,
       },
-      include: { user: true },
+      include: { user: true, consuntivo: true },
     });
 
     return ferie;
@@ -35,7 +36,7 @@ export default async function (app: FastifyInstance) {
   app.post('/', {
     schema: { body: FerieBody }
   }, async (request, reply) => {
-    const { userId, inizio, fine, approvato } = request.body as typeof FerieBody.static;
+    const { userId, inizio, fine, approvato, consuntivoId } = request.body as typeof FerieBody.static;
 
     const ferie = await prisma.ferie.create({
       data: {
@@ -43,6 +44,7 @@ export default async function (app: FastifyInstance) {
         inizio: new Date(inizio),
         fine: new Date(fine),
         approvato: approvato ?? false,
+        consuntivoId,
       },
     });
 

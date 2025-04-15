@@ -7,7 +7,8 @@ const PermessoBody = Type.Object({
   data: Type.String({ format: 'date-time' }),
   ore: Type.Number({ minimum: 1, maximum: 24 }),
   motivo: Type.String(),
-  approvato: Type.Optional(Type.Boolean())
+  approvato: Type.Optional(Type.Boolean()),
+  consuntivoId: Type.Optional(Type.String())
 });
 
 export default async function (app: FastifyInstance) {
@@ -27,7 +28,7 @@ export default async function (app: FastifyInstance) {
             }
           : undefined,
       },
-      include: { user: true },
+      include: { user: true, consuntivo: true },
     });
 
     return permessi;
@@ -36,7 +37,7 @@ export default async function (app: FastifyInstance) {
   app.post('/', {
     schema: { body: PermessoBody }
   }, async (request, reply) => {
-    const { userId, data, ore, motivo, approvato } = request.body as typeof PermessoBody.static;
+    const { userId, data, ore, motivo, approvato, consuntivoId } = request.body as typeof PermessoBody.static;
 
     const permesso = await prisma.permesso.create({
       data: {
@@ -45,6 +46,7 @@ export default async function (app: FastifyInstance) {
         ore,
         motivo,
         approvato: approvato ?? false,
+        consuntivoId,
       },
     });
 
