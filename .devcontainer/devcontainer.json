@@ -1,0 +1,24 @@
+{
+	"name": "Consuntivi Backend",
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bullseye",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"mounts": [
+	  "source=${localWorkspaceFolderBasename}-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
+	],
+	"customizations": {
+	  "vscode": {
+		"extensions": [
+		  "esbenp.prettier-vscode",
+		  "dbaeumer.vscode-eslint",
+		  "ms-azuretools.vscode-docker"
+		]
+	  }
+	},
+	"forwardPorts": [3001],
+	"postCreateCommand": "sudo chown node node_modules && npm install",
+	"remoteUser": "node",
+	"features": {
+	  "ghcr.io/devcontainers/features/git:1": {}
+	}
+  }
+  
